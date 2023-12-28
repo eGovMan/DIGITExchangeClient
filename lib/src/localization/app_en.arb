@@ -1,0 +1,6 @@
+{
+  "appTitle": "DIGIT Exchange Client",
+  "@appTitle": {
+    "description": "This application enables users to send and receive fiscal messages."
+  }
+}
