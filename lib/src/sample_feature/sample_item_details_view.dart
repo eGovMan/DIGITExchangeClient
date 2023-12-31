@@ -1,25 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'dart:convert';
 
 import '../models/request_message.dart';
-
-// /// Displays detailed information about a SampleItem.
-// class SampleItemDetailsView extends StatelessWidget {
-//   const SampleItemDetailsView({super.key});
-
-//   static const routeName = '/sample_item';
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Item Details'),
-//       ),
-//       body: const Center(
-//         child: Text('More Information Here'),
-//       ),
-//     );
-//   }
-// }
+import 'base_view.dart';
 
 class SampleItemDetailsView extends StatelessWidget {
   final RequestMessage requestMessage;
@@ -30,43 +14,88 @@ class SampleItemDetailsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-            'Details for ${"${requestMessage.header.fiscalMessage.fiscalMessageType} from ${requestMessage.header.senderId}"}'),
-      ),
-      body: Padding(
+    // Parse JSON string to Map
+    Map<String, dynamic> messageJson = json.decode(requestMessage.message);
+
+    // Construct the body content
+    Widget bodyContent = Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('ID: ${requestMessage.id}'),
-            Text('Header Version: ${requestMessage.header.version}'),
-            Text('Header MessageId: ${requestMessage.header.messageId}'),
-            Text('Header TimeStamp: ${requestMessage.header.messageTs}'),
-            Text('Header SenderId: ${requestMessage.header.senderId}'),
-            Text('Header Action: ${requestMessage.header.action}'),
-            Text(
-                'Fiscal Message Type: ${requestMessage.header.fiscalMessage.fiscalMessageType}'),
-            Text(
-                'Fiscal Function Type: ${requestMessage.header.fiscalMessage.functionCode}'),
-            Text(
-                'Fiscal Administration Type: ${requestMessage.header.fiscalMessage.administrationCode}'),
-            Text(
-                'Fiscal Segment Type: ${requestMessage.header.fiscalMessage.economicSegmentCode}'),
-            Text(
-                'Fiscal Location: ${requestMessage.header.fiscalMessage.locationCode}'),
-            Text(
-                'Fiscal Gross Amount: ${requestMessage.header.fiscalMessage.grossAmount}'),
-            Text(
-                'Fiscal Net Amount: ${requestMessage.header.fiscalMessage.netAmount}'),
-            Text(
-                'Fiscal Start Date: ${requestMessage.header.fiscalMessage.startDate}'),
-            Text(
-                'Fiscal End Date: ${requestMessage.header.fiscalMessage.endDate}'),
+            // Header Row
+            Container(
+              width: double.infinity,
+              child: Text(
+                requestMessage.header.messageType,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            // Sender and Timestamp Row
+            Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 8,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        requestMessage.header.senderId,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        requestMessage.header.receiverId,
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  formatMessageTs(requestMessage.header.messageTs),
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ],
+            ),
+            // Message Body Row
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                // Assuming requestMessage.message is a Map<String, dynamic>
+                ...messageJson.entries
+                    .map((entry) =>
+                        Text('Key: ${entry.key}, Value: ${entry.value}'))
+                    .toList(),
+              ],
+            ),
+            // Dropdown Button
+            DropdownButton<String>(
+              items: const [
+                const DropdownMenuItem(
+                    value: 'processing', child: const Text('Processing')),
+                const DropdownMenuItem(
+                    value: 'approve', child: const Text('Approve (Done)')),
+                const DropdownMenuItem(
+                    value: 'reject', child: const Text('Reject (Done)')),
+              ],
+              onChanged: (value) {
+                // Handle change
+              },
+              hint: const Text('Reply'),
+            ),
           ],
-        ),
-      ),
+        ));
+
+    return BaseView(
+      title:
+          'Details for ${requestMessage.header.messageType} from ${requestMessage.header.senderId}',
+      body: bodyContent,
     );
+  }
+
+  String formatMessageTs(DateTime messageTs) {
+    var now = DateTime.now();
+    var difference = now.difference(messageTs);
+    var formattedDate = DateFormat("MMM dd, yyyy hh:mm a").format(messageTs);
+    return "$formattedDate (${difference.inHours} hours ago)";
   }
 }

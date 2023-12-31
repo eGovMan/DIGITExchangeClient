@@ -1,10 +1,10 @@
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 
-class FiscalMessage {
+class ExchangeMessage {
   String id;
   String schemaVersion;
-  String fiscalMessageType;
+  String messageType;
   String accountCode;
   String functionCode;
   String administrationCode;
@@ -21,10 +21,10 @@ class FiscalMessage {
   String currencyCode;
   String localeCode;
 
-  FiscalMessage({
+  ExchangeMessage({
     String? id,
     this.schemaVersion = '1.0.0',
-    this.fiscalMessageType = '',
+    this.messageType = '',
     this.accountCode = '',
     this.functionCode = '',
     this.administrationCode = '',
@@ -59,10 +59,11 @@ class FiscalMessage {
     }
   }
 
-  factory FiscalMessage.fromJson(Map<String, dynamic> json) => FiscalMessage(
+  factory ExchangeMessage.fromJson(Map<String, dynamic> json) =>
+      ExchangeMessage(
         id: json['id'] ?? '',
         schemaVersion: json['schema_version'] ?? '',
-        fiscalMessageType: json['fiscal_message_type'] ?? '',
+        messageType: json['message_type'] ?? '',
         accountCode: json['account_code'] ?? '',
         functionCode: json['function_code'] ?? '',
         administrationCode: json['administration_code'] ?? '',
@@ -83,21 +84,21 @@ class FiscalMessage {
   Map<String, dynamic> toJson() => {
         'id': id,
         'schema_version': schemaVersion,
-        'fiscalMessageType': fiscalMessageType,
+        'message_type': messageType,
         'account_code': accountCode,
-        'functionCode': functionCode,
-        'administrationCode': administrationCode,
-        'locationCode': locationCode,
-        'programCode': programCode,
-        'recipient_segmentCode': recipientSegmentCode,
-        'economic_segmentCode': economicSegmentCode,
-        'source_of_foundCode': sourceOfFundCode,
-        'target_segmentCode': targetSegmentCode,
+        'function_code': functionCode,
+        'administration_code': administrationCode,
+        'location_code': locationCode,
+        'program_code': programCode,
+        'recipient_segment_code': recipientSegmentCode,
+        'economic_segment_code': economicSegmentCode,
+        'source_of_found_code': sourceOfFundCode,
+        'target_segment_code': targetSegmentCode,
         // 'start_date': DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(startDate),
         // 'end_date': DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(endDate),
         'net_amount': netAmount,
         'gross_amount': grossAmount,
-        'currencyCode': currencyCode,
-        'localeCode': localeCode,
+        'currency_code': currencyCode,
+        'locale_code': localeCode,
       };
 }
