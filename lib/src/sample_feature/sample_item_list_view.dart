@@ -1,10 +1,12 @@
 import 'package:digit_exchange_client/src/sample_feature/sample_item_details_view.dart';
+import 'package:digit_exchange_client/src/services/auth_service.dart';
 import 'package:digit_exchange_client/src/services/exchange_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../login/login_controller.dart';
+import '../login/login_view.dart';
 import '../models/request_message.dart';
 import 'base_view.dart';
 
@@ -24,31 +26,70 @@ class SampleItemListViewState extends State<SampleItemListView> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<LoginController>(context);
-    return BaseView(
-      title: 'Inbox',
-      body: FutureBuilder<List<RequestMessage>>(
-        future: _exchangeService.inbox(controller.token),
+    return FutureBuilder(
+        future: Provider.of<AuthService>(context, listen: false).initialization,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            return ListView.builder(
-              restorationId: 'sampleItemListView',
-              itemCount: snapshot.data!.length,
-              itemBuilder: (BuildContext context, int index) {
-                final RequestMessage item = snapshot.data![index];
-                return _buildListItem(item);
-              },
+          if (snapshot.connectionState == ConnectionState.done) {
+            final controller = Provider.of<AuthService>(context);
+            return BaseView(
+              title: 'Inbox',
+              body: FutureBuilder<List<RequestMessage>>(
+                future: _exchangeService.inbox(controller),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (snapshot.hasData) {
+                    // Now you can safely access the LoginController
+                    final controller = Provider.of<AuthService>(context);
+                    // Use the controller as needed
+                    if (controller.token.isNotEmpty) {
+                      // Token is available, proceed with your logic
+                      return FutureBuilder<List<RequestMessage>>(
+                        // ... FutureBuilder setup ...
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else if (snapshot.hasData &&
+                              snapshot.data!.isNotEmpty) {
+                            return ListView.builder(
+                                restorationId: 'sampleItemListView',
+                                itemCount: snapshot.data!.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final RequestMessage item =
+                                      snapshot.data![index];
+                                  return _buildListItem(item);
+                                });
+                          } else {
+                            // When itemCount is zero
+                            return const Center(
+                              child: Text("No messages"),
+                            );
+                          }
+                        },
+                      );
+                    } else {
+                      // Token is not available, redirect to login screen
+                      Future.microtask(() => Navigator.of(context)
+                          .pushReplacementNamed(LoginView.routeName));
+                      // While redirecting, you can show a placeholder widget
+                      return const CircularProgressIndicator();
+                    }
+                  } else {
+                    return const Center(child: Text('No data available'));
+                  }
+                },
+              ),
             );
           } else {
-            return const Center(child: Text('No data available'));
+            // While loading the token, show a loading indicator or similar
+            return const CircularProgressIndicator();
           }
-        },
-      ),
-    );
+        });
     // Scaffold(
     //   appBar: AppBar(
     //     title: const Text('Inbox'),
@@ -244,7 +285,7 @@ class SampleItemListViewState extends State<SampleItemListView> {
                 child: Text(
                   formatDate(item.header
                       .messageTs), // Assuming formatDate is your method to format the date
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                   overflow: TextOverflow.ellipsis,
                 ),
               )),

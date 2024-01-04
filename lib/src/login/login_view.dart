@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../sample_feature/sample_item_list_view.dart';
-
-// import 'login_controller.dart';
+import '../services/auth_service.dart';
 
 class LoginView extends StatefulWidget {
-  LoginView({Key? key}) : super(key: key);
+  const LoginView({Key? key}) : super(key: key);
 
   static const routeName = '/login';
 
@@ -21,7 +20,7 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<LoginController>(context, listen: false);
+    final controller = LoginController();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
@@ -53,11 +52,27 @@ class _LoginViewState extends State<LoginView> {
               onPressed: () async {
                 String username = usernameController.text;
                 String password = passwordController.text;
-                await controller.login(username, password);
+                try {
+                  await controller.login(username, password);
 
-                if (mounted && controller.token.isNotEmpty) {
-                  Navigator.pushReplacementNamed(
-                      context, SampleItemListView.routeName);
+                  if (mounted && controller.token.isNotEmpty) {
+                    AuthService authService =
+                        Provider.of<AuthService>(context, listen: false);
+                    authService.setStoredToken(controller.token);
+
+                    Navigator.pushReplacementNamed(
+                        context, SampleItemListView.routeName);
+                  }
+                } catch (error) {
+                  // Handle the error and show a message to the user
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Login failed: ${error.toString()}'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 }
               },
               child: const Text('Log In'),

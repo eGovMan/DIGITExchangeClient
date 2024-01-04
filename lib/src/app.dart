@@ -77,12 +77,12 @@ class MyApp extends StatelessWidget {
                           requestMessage: requestMessage);
                     } else {
                       // Handle the case where requestMessage is not passed
-                      return LoginView(); // Or some error view
+                      return const LoginView(); // Or some error view
                     }
                   case SampleItemListView.routeName:
                     return const SampleItemListView();
                   default:
-                    return LoginView();
+                    return const LoginView();
                 }
               },
             );

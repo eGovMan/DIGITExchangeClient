@@ -28,7 +28,7 @@ class SampleItemDetailsView extends StatelessWidget {
               width: double.infinity,
               child: Text(
                 requestMessage.header.messageType,
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
             // Sender and Timestamp Row
@@ -41,18 +41,19 @@ class SampleItemDetailsView extends StatelessWidget {
                     children: <Widget>[
                       Text(
                         requestMessage.header.senderId,
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text(
                         requestMessage.header.receiverId,
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ],
                   ),
                 ),
                 Text(
                   formatMessageTs(requestMessage.header.messageTs),
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],
             ),
@@ -70,12 +71,11 @@ class SampleItemDetailsView extends StatelessWidget {
             // Dropdown Button
             DropdownButton<String>(
               items: const [
-                const DropdownMenuItem(
-                    value: 'processing', child: const Text('Processing')),
-                const DropdownMenuItem(
-                    value: 'approve', child: const Text('Approve (Done)')),
-                const DropdownMenuItem(
-                    value: 'reject', child: const Text('Reject (Done)')),
+                DropdownMenuItem(
+                    value: 'processing', child: Text('Processing')),
+                DropdownMenuItem(
+                    value: 'approve', child: Text('Approve (Done)')),
+                DropdownMenuItem(value: 'reject', child: Text('Reject (Done)')),
               ],
               onChanged: (value) {
                 // Handle change

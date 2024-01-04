@@ -65,7 +65,7 @@ class BaseViewState extends State<BaseView> {
                   }).toList(),
                 ),
               ),
-              Divider(),
+              const Divider(),
               ListTile(
                 title: const Text('Inbox'),
                 onTap: () {
@@ -79,7 +79,7 @@ class BaseViewState extends State<BaseView> {
                   // Navigate to Sent Items View
                 },
               ),
-              Divider(),
+              const Divider(),
               ListTile(
                 title: const Text('Settings'),
                 onTap: () {

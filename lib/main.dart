@@ -1,6 +1,6 @@
-import 'package:digit_exchange_client/src/login/login_controller.dart';
 import 'package:digit_exchange_client/src/login/login_view.dart';
 import 'package:digit_exchange_client/src/sample_feature/sample_item_list_view.dart';
+import 'package:digit_exchange_client/src/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -38,7 +38,7 @@ class MyAppWithProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => LoginController(), // Provide your LoginController
+      create: (context) => AuthService(), // Provide your AuthService
       child: MyApp(settingsController: settingsController),
     );
   }
@@ -52,12 +52,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => LoginController(),
+      create: (context) => AuthService(),
       child: MaterialApp(
         title: 'DIGIT Exchange Client',
         initialRoute: '/',
         routes: {
-          '/': (context) => LoginView(),
+          '/': (context) => const LoginView(),
           SampleItemListView.routeName: (context) => const SampleItemListView(),
           // Add other routes here
         },

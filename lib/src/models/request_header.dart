@@ -1,8 +1,4 @@
 import 'package:uuid/uuid.dart';
-import 'package:intl/intl.dart';
-
-import 'exchange_message.dart';
-import 'action.dart';
 
 class RequestHeader {
   String id;
