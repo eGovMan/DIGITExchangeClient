@@ -11,6 +11,8 @@ class LoginController with ChangeNotifier {
   // also persisting the changes with the LoginService.
   late String _token = "";
 
+  String get token => _token;
+
   /// Load the user's settings from the LoginService. It may load from a
   /// local database or the internet. The controller only knows it can load the
   /// settings from the service.

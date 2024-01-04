@@ -2,9 +2,10 @@ import 'package:digit_exchange_client/src/sample_feature/sample_item_details_vie
 import 'package:digit_exchange_client/src/services/exchange_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
+import '../login/login_controller.dart';
 import '../models/request_message.dart';
-import '../settings/settings_view.dart';
 import 'base_view.dart';
 
 class SampleItemListView extends StatefulWidget {
@@ -12,7 +13,7 @@ class SampleItemListView extends StatefulWidget {
       : super(key: key); // Added named key parameter
 
   // Define the routeName static variable
-  static const String routeName = '/sampleItemListView';
+  static const routeName = '/sampleItemListView';
 
   @override
   SampleItemListViewState createState() => SampleItemListViewState();
@@ -20,14 +21,14 @@ class SampleItemListView extends StatefulWidget {
 
 class SampleItemListViewState extends State<SampleItemListView> {
   final ExchangeService _exchangeService = ExchangeService();
-  String _selectedComposeOption = 'Compose';
 
   @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<LoginController>(context);
     return BaseView(
       title: 'Inbox',
       body: FutureBuilder<List<RequestMessage>>(
-        future: _exchangeService.inbox(),
+        future: _exchangeService.inbox(controller.token),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

@@ -1,21 +1,27 @@
 import 'package:digit_exchange_client/src/login/login_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../sample_feature/sample_item_list_view.dart';
 
 // import 'login_controller.dart';
 
-class LoginView extends StatelessWidget {
-  LoginView({super.key});
+class LoginView extends StatefulWidget {
+  LoginView({Key? key}) : super(key: key);
 
   static const routeName = '/login';
 
-  final LoginController controller = LoginController();
-  TextEditingController usernameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  @override
+  _LoginViewState createState() => _LoginViewState();
+}
+
+class _LoginViewState extends State<LoginView> {
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<LoginController>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
@@ -44,13 +50,15 @@ class LoginView extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 String username = usernameController.text;
                 String password = passwordController.text;
-                // Call your login method with username and password
-                controller.login(username, password);
-                Navigator.pushReplacementNamed(
-                    context, SampleItemListView.routeName);
+                await controller.login(username, password);
+
+                if (mounted && controller.token.isNotEmpty) {
+                  Navigator.pushReplacementNamed(
+                      context, SampleItemListView.routeName);
+                }
               },
               child: const Text('Log In'),
             ),
@@ -58,5 +66,13 @@ class LoginView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    usernameController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 }

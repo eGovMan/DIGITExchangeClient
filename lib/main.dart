@@ -1,6 +1,9 @@
+import 'package:digit_exchange_client/src/login/login_controller.dart';
+import 'package:digit_exchange_client/src/login/login_view.dart';
+import 'package:digit_exchange_client/src/sample_feature/sample_item_list_view.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import 'src/app.dart';
 import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
 
@@ -25,4 +28,40 @@ void main() async {
   // SettingsController for changes, then passes it further down to the
   // SettingsView.
   runApp(MyApp(settingsController: settingsController));
+}
+
+class MyAppWithProvider extends StatelessWidget {
+  final SettingsController settingsController;
+
+  const MyAppWithProvider({super.key, required this.settingsController});
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => LoginController(), // Provide your LoginController
+      child: MyApp(settingsController: settingsController),
+    );
+  }
+}
+
+class MyApp extends StatelessWidget {
+  final SettingsController settingsController;
+
+  const MyApp({super.key, required this.settingsController});
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => LoginController(),
+      child: MaterialApp(
+        title: 'DIGIT Exchange Client',
+        initialRoute: '/',
+        routes: {
+          '/': (context) => LoginView(),
+          SampleItemListView.routeName: (context) => const SampleItemListView(),
+          // Add other routes here
+        },
+      ),
+    );
+  }
 }
