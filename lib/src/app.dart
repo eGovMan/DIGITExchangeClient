@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'models/request_message.dart';
+import 'models/message.dart';
 import 'sample_feature/sample_item_details_view.dart';
 import 'sample_feature/sample_item_list_view.dart';
 import 'settings/settings_controller.dart';
@@ -70,8 +70,7 @@ class MyApp extends StatelessWidget {
                     return SettingsView(controller: settingsController);
                   case SampleItemDetailsView.routeName:
                     // Extract RequestMessage object from route arguments
-                    final requestMessage =
-                        routeSettings.arguments as RequestMessage?;
+                    final requestMessage = routeSettings.arguments as Message?;
                     if (requestMessage != null) {
                       return SampleItemDetailsView(
                           requestMessage: requestMessage);

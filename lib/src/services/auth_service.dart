@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService with ChangeNotifier {
@@ -32,7 +33,8 @@ class AuthService with ChangeNotifier {
 
   Future<String> refreshToken() async {
     // Replace with your refresh endpoint
-    final response = await http.post(Uri.parse('https://your.api/refresh'));
+    final response = await http
+        .post(Uri.parse('http://127.0.0.1:8080/exchange/v1/public/refresh'));
     if (response.statusCode == 200) {
       // Assuming the response body contains the new token
       final newToken = response.body;
@@ -62,6 +64,9 @@ class AuthService with ChangeNotifier {
         'Authorization': 'Bearer $token',
       });
     }
+    var log = Logger('Digit Exchange Logger');
+    log.info(response);
+
     return response;
   }
 
@@ -82,6 +87,38 @@ class AuthService with ChangeNotifier {
       },
       body: json.encode(body),
     );
+
+    // Check if token expired during the request, refresh it and retry
+    if (response.statusCode == 401) {
+      token = await refreshToken();
+      response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode(body),
+      );
+    }
+
+    return response;
+  }
+
+  Future<http.Response> postString(Uri url, String body) async {
+    var token = await getStoredToken();
+
+    // Check if the token is expired and refresh it if needed
+    if (isTokenExpired(token)) {
+      token = await refreshToken();
+    }
+
+    // Make the initial POST request
+    var response = await http.post(url,
+        headers: {
+          'Content-Type': 'text/plain',
+          'Authorization': 'Bearer $token',
+        },
+        body: body);
 
     // Check if token expired during the request, refresh it and retry
     if (response.statusCode == 401) {
@@ -126,6 +163,32 @@ class AuthService with ChangeNotifier {
     } catch (e) {
       // In case of error, assume the token is expired
       return true;
+    }
+  }
+
+  Future<String> getUserIdFromToken() async {
+    try {
+      var token = await getStoredToken();
+      final parts = token.split('.');
+      if (parts.length != 3) {
+        // Invalid token format
+        throw Exception("Invalid token");
+      }
+
+      final payload = parts[1];
+      final normalized = base64Url.normalize(payload);
+      final decodedPayload = utf8.decode(base64Url.decode(normalized));
+      final payloadMap = json.decode(decodedPayload);
+
+      if (!payloadMap.containsKey('sub')) {
+        // user_id claim not found
+        throw Exception("user_id not found in token");
+      }
+
+      return payloadMap['sub'];
+    } catch (e) {
+      // In case of error, return an empty string or handle as needed
+      return '';
     }
   }
 }

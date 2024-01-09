@@ -1,6 +1,7 @@
+import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-class RequestHeader {
+class Header {
   String id;
   String version;
   String messageId;
@@ -13,7 +14,7 @@ class RequestHeader {
   bool isMsgEncrypted;
   // ExchangeMessage exchangeMessage;
 
-  RequestHeader({
+  Header({
     String? id,
     String? version,
     String? messageId,
@@ -34,13 +35,13 @@ class RequestHeader {
         senderUri = senderUri ?? '',
         receiverId = receiverId ?? '';
 
-  factory RequestHeader.fromJson(Map<String, dynamic> json) {
-    // final dateTimeStr = _stripTimeZoneName(json['message_ts']);
-    return RequestHeader(
+  factory Header.fromJson(Map<String, dynamic> json) {
+    final dateTimeStr = _stripTimeZoneName(json['message_ts']);
+    return Header(
       id: json['id'] ?? '',
       version: json['version'] ?? '',
       messageId: json['message_id'] ?? '',
-      // messageTs: DateFormat("yyyy-MM-dd'T'HH:mm:ss").parse(dateTimeStr, true),
+      messageTs: parseDateTime(dateTimeStr),
       messageType: json['message_type'] ?? '',
       senderId: json['sender_id'] ?? '',
       senderUri: json['senderUri'] ?? '',
@@ -66,15 +67,39 @@ class RequestHeader {
         // 'meta': exchangeMessage.toJson(),
       };
 
-  // static String _stripTimeZoneName(String dateTimeStr) {
-  //   final timeZoneNameStart = dateTimeStr.indexOf('[');
-  //   return (timeZoneNameStart != -1)
-  //       ? dateTimeStr.substring(0, timeZoneNameStart)
-  //       : dateTimeStr;
-  // }
+  static DateTime parseDateTime(String dateTimeString) {
+    // Find the position of '+' or '-' to identify the start of the timezone offset
+    int timezonePosition = dateTimeString.contains('+')
+        ? dateTimeString.indexOf('+')
+        : dateTimeString.indexOf('-');
 
-  // static String _formatTimeZoneOffset(DateTime dateTime) {
-  //   String offset = DateFormat("Z").format(dateTime);
-  //   return "${offset.substring(0, 3)}:${offset.substring(3)}";
-  // }
+    // Parse the date and time, ignoring the timezone offset
+    DateTime parsedDateTime =
+        DateTime.parse(dateTimeString.substring(0, timezonePosition));
+
+    // Extract the timezone offset
+    String offset = dateTimeString.substring(timezonePosition);
+    int hoursOffset = int.parse(offset.substring(0, 3));
+    int minutesOffset = int.parse(offset[0] + offset.substring(4));
+
+    // // Adjust the DateTime object by the extracted offset
+    // parsedDateTime = parsedDateTime
+    //     .subtract(Duration(hours: hoursOffset, minutes: minutesOffset));
+
+    var utcTime = parsedDateTime.toUtc();
+
+    return parsedDateTime;
+  }
+
+  static String _stripTimeZoneName(String dateTimeStr) {
+    final timeZoneNameStart = dateTimeStr.indexOf('[');
+    return (timeZoneNameStart != -1)
+        ? dateTimeStr.substring(0, timeZoneNameStart)
+        : dateTimeStr;
+  }
+
+  static String _formatTimeZoneOffset(DateTime dateTime) {
+    String offset = DateFormat("Z").format(dateTime);
+    return "${offset.substring(0, 3)}:${offset.substring(3)}";
+  }
 }

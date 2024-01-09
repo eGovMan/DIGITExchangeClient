@@ -1,7 +1,7 @@
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 
-class ExchangeMessage {
+class FiscalData {
   String id;
   String schemaVersion;
   String messageType;
@@ -21,7 +21,7 @@ class ExchangeMessage {
   String currencyCode;
   String localeCode;
 
-  ExchangeMessage({
+  FiscalData({
     String? id,
     this.schemaVersion = '1.0.0',
     this.messageType = '',
@@ -59,8 +59,7 @@ class ExchangeMessage {
     }
   }
 
-  factory ExchangeMessage.fromJson(Map<String, dynamic> json) =>
-      ExchangeMessage(
+  factory FiscalData.fromJson(Map<String, dynamic> json) => FiscalData(
         id: json['id'] ?? '',
         schemaVersion: json['schema_version'] ?? '',
         messageType: json['message_type'] ?? '',

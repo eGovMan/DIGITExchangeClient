@@ -1,12 +1,14 @@
+import 'package:digit_exchange_client/src/models/header.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 
-import '../models/request_message.dart';
+import '../models/message.dart';
 import 'base_view.dart';
+import 'message_dialog.dart';
 
 class SampleItemDetailsView extends StatelessWidget {
-  final RequestMessage requestMessage;
+  final Message requestMessage;
 
   const SampleItemDetailsView({Key? key, required this.requestMessage})
       : super(key: key);
@@ -14,9 +16,6 @@ class SampleItemDetailsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Parse JSON string to Map
-    Map<String, dynamic> messageJson = json.decode(requestMessage.message);
-
     // Construct the body content
     Widget bodyContent = Padding(
         padding: const EdgeInsets.all(16.0),
@@ -58,29 +57,12 @@ class SampleItemDetailsView extends StatelessWidget {
               ],
             ),
             // Message Body Row
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                // Assuming requestMessage.message is a Map<String, dynamic>
-                ...messageJson.entries
-                    .map((entry) =>
-                        Text('Key: ${entry.key}, Value: ${entry.value}'))
-                    .toList(),
-              ],
-            ),
-            // Dropdown Button
-            DropdownButton<String>(
-              items: const [
-                DropdownMenuItem(
-                    value: 'processing', child: Text('Processing')),
-                DropdownMenuItem(
-                    value: 'approve', child: Text('Approve (Done)')),
-                DropdownMenuItem(value: 'reject', child: Text('Reject (Done)')),
-              ],
-              onChanged: (value) {
-                // Handle change
+            buildMessageWidget(requestMessage.message),
+            ElevatedButton(
+              onPressed: () {
+                showMessageDialog(context, requestMessage);
               },
-              hint: const Text('Reply'),
+              child: const Text('Reply'),
             ),
           ],
         ));
@@ -93,9 +75,58 @@ class SampleItemDetailsView extends StatelessWidget {
   }
 
   String formatMessageTs(DateTime messageTs) {
-    var now = DateTime.now();
+    var now = DateTime.now().toUtc();
     var difference = now.difference(messageTs);
+
     var formattedDate = DateFormat("MMM dd, yyyy hh:mm a").format(messageTs);
-    return "$formattedDate (${difference.inHours} hours ago)";
+    String timeAgo;
+    if (difference.inHours == 0) {
+      // Show minutes if the difference in hours is zero
+      timeAgo = "${difference.inMinutes} mins ago";
+    } else {
+      // Show hours otherwise
+      timeAgo = "${difference.inHours} hours ago";
+    }
+    return "$formattedDate ($timeAgo)";
+  }
+
+  bool isJson(String str) {
+    try {
+      json.decode(str);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  void showMessageDialog(BuildContext context, Message message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return MessageDialog(
+            from: message.header.receiverId,
+            replyToMessageId: message.header.id,
+            replyTo: message.header.senderId,
+            replyToMessage: message.message);
+      },
+    );
+  }
+
+  Widget buildMessageWidget(String message) {
+    if (isJson(message)) {
+      Map<String, dynamic> messageJson = json.decode(message);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: messageJson.entries
+            .map((entry) => Text('Key: ${entry.key}, Value: ${entry.value}'))
+            .toList(),
+      );
+    } else {
+      return TextField(
+        controller: TextEditingController(text: message),
+        readOnly: true, // makes it non-editable
+        maxLines: null, // makes it expand as needed
+      );
+    }
   }
 }

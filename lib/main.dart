@@ -1,13 +1,24 @@
 import 'package:digit_exchange_client/src/login/login_view.dart';
+import 'package:digit_exchange_client/src/sample_feature/individual/individual_list_view.dart';
+import 'package:digit_exchange_client/src/sample_feature/organisation/organisation_list_view.dart';
 import 'package:digit_exchange_client/src/sample_feature/sample_item_list_view.dart';
 import 'package:digit_exchange_client/src/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:logging/logging.dart';
 
 import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
 
 void main() async {
+  Logger.root.level = Level.ALL; // Set this to control logging output
+  Logger.root.onRecord.listen((record) {
+    print('${record.level.name}: ${record.time}: ${record.message}');
+  });
+
+  var log = Logger('Digit Exchange Logger');
+  log.info('Info Log for DIGIT Exchange is on.');
+
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
     // Log, send to a server, or display an error message
@@ -59,7 +70,9 @@ class MyApp extends StatelessWidget {
         routes: {
           '/': (context) => const LoginView(),
           SampleItemListView.routeName: (context) => const SampleItemListView(),
-          // Add other routes here
+          OrganisationListView.routeName: (context) =>
+              const OrganisationListView(),
+          IndividualListView.routeName: (context) => const IndividualListView()
         },
       ),
     );

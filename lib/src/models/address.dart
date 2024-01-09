@@ -1,36 +1,3 @@
-class Individual {
-  String id;
-  Address? address;
-  String? email;
-  String? phone;
-  String? pin;
-  List<String>? roles;
-  bool? isActive;
-
-  Individual({
-    required this.id,
-    this.address,
-    this.email,
-    this.phone,
-    this.pin,
-    this.roles,
-    this.isActive,
-  });
-
-  factory Individual.fromJson(Map<String, dynamic> json) {
-    return Individual(
-      id: json['id'],
-      address:
-          json['address'] != null ? Address.fromJson(json['address']) : null,
-      email: json['email'],
-      phone: json['phone'],
-      pin: json['pin'],
-      roles: json['roles'] != null ? List<String>.from(json['roles']) : null,
-      isActive: json['isActive'],
-    );
-  }
-}
-
 class Address {
   String? doorNo;
   double? latitude;
@@ -78,5 +45,23 @@ class Address {
       boundaryType: json['boundaryType'],
       boundary: json['boundary'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'doorNo': doorNo,
+      'latitude': latitude,
+      'longitude': longitude,
+      'locationAccuracy': locationAccuracy,
+      'addressLine1': addressLine1,
+      'addressLine2': addressLine2,
+      'landmark': landmark,
+      'city': city,
+      'pincode': pincode,
+      'buildingName': buildingName,
+      'street': street,
+      'boundaryType': boundaryType,
+      'boundary': boundary,
+    };
   }
 }
