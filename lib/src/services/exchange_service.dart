@@ -29,6 +29,25 @@ class ExchangeService {
     }
   }
 
+  Future<List<Message>> sentitems(AuthService auth, String search) async {
+    var url = Uri.parse('http://127.0.0.1:8080/exchange/v1/sentitems');
+    var body = {"search_string": search, "page": 0, "size": 50};
+
+    try {
+      var response = await auth.post(url, body);
+      if (response.statusCode == 200 && response.body.isNotEmpty) {
+        var data = json.decode(response.body);
+        List<dynamic> content = data['content'];
+        return content.map((json) => Message.fromJson(json)).toList();
+      } else {
+        throw Exception(("No Items in Inbox"));
+      }
+    } catch (e) {
+      // You can handle specific exceptions if you need to
+      throw Exception('Failed to fetch data: $e');
+    }
+  }
+
   Future<List<Individual>> individuals(
       AuthService auth, String searchString) async {
     var url =
@@ -54,7 +73,7 @@ class ExchangeService {
   Future<Individual> individualCreate(
       AuthService auth, Individual individual) async {
     var url =
-        Uri.parse('http://127.0.0.1:8080/exchange/v1/public/individual/create');
+        Uri.parse('http://127.0.0.1:8080/exchange/v1/admin/individual/create');
     var body = individual.toJson();
     try {
       var response = await auth.post(url, body);
